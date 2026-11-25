@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1151-W12 BNA-EMI 課堂筆記心智圖與系統架構</title>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-blue: #0284c7;
+            --accent-green: #16a34a;
+            --accent-amber: #d97706;
+            --accent-rose: #e11d48;
+            --border-light: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 16px;
+        }
+
+        /* 遵循白板筆記左下角風格規範：Portrait 直向手機優先、簡潔、清晰、淺色系 */
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: var(--accent-blue);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            white-space: nowrap;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        }
+
+        .section-panel {
+            display: none;
+        }
+
+        .section-panel.active {
+            display: block;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .step-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step-item {
+            background: #f1f5f9;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .step-item strong {
+            display: block;
+            font-size: 0.94rem;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .step-item span {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .svg-wrapper {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .pill-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .pill {
+            font-size: 0.82rem;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .pill.highlight-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pill.highlight-amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill.highlight-rose {
+            background: #ffe4e6;
+            color: #9f1239;
+        }
+
+        .compare-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .compare-col {
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .compare-good {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .compare-bad {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+            padding-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="badge">1151-W12 · 2026/11/25</span>
+            <h1>BNA-EMI 商業分析與 AI Agent 產品架構</h1>
+            <p class="subtitle">白板筆記結構化單頁應用 (SPA) · 直向行動裝置優先設計</p>
+        </header>
+
+        <nav class="tabs" role="tablist">
+            <button class="tab-btn active" onclick="switchTab('analysis', this)">1. 分析思維</button>
+            <button class="tab-btn" onclick="switchTab('product', this)">2. 產品與市場</button>
+            <button class="tab-btn" onclick="switchTab('workflow', this)">3. AI 工作流</button>
+            <button class="tab-btn" onclick="switchTab('design', this)">4. SPA 規範</button>
+        </nav>
+
+        <!-- Tab 1: Analytical Thinking -->
+        <section id="analysis" class="section-panel active">
+            <div class="card">
+                <div class="card-title"><span class="dot" style="background: var(--accent-blue);"></span>Analytical Thinking 分析四步驟</div>
+                <ul class="step-list">
+                    <li class="step-item">
+                        <strong>① 拆解 (Separate $\Sigma$ parts / $\Sigma$ components)</strong>
+                        <span>釐清核心問題 (the problem)、市場需求 (the demand) 與關鍵提問 (the question)。</span>
+                    </li>
+                    <li class="step-item">
+                        <strong>② 深度探究 (Investigate deeply with evidences)</strong>
+                        <span>以實證資料為基礎進行深入調查，挖掘各要素之間的潛在關聯 (potential relationships)。</span>
+                    </li>
+                    <li class="step-item">
+                        <strong>③ 重組架構 (Recombine → Coggle Mind Map)</strong>
+                        <span>將拆解後的要素重組為系統化 (systematic)、結構化 (structured) 且流程導向 (process-oriented) 的心智圖。</span>
+                    </li>
+                    <li class="step-item">
+                        <strong>④ 洞察輸出 (A new representation ⇒ Insights)</strong>
+                        <span>透過新的視覺與結構化呈現，產出可落地的商業洞察 (Insights)。</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="dot" style="background: var(--accent-green);"></span>評估標準：有效性 vs. 效率</div>
+                <div class="compare-box">
+                    <div class="compare-col compare-good">
+                        <strong>✓ Effective (有效性)</strong>
+                        <p style="margin-top:4px; color:#166534;">達成目標與核心目的 (goal / purpose reached)，確保方向正確。</p>
+                    </div>
+                    <div class="compare-col compare-bad">
+                        <strong>✕ Efficient (單純效率)</strong>
+                        <p style="margin-top:4px; color:#9f1239;">僅追求投入產出比 (Output ↑ / Input ↓)，若未達目標則無意義。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Product, PRD & Market -->
+        <section id="product" class="section-panel">
+            <div class="card">
+                <div class="card-title"><span class="dot" style="background: var(--accent-amber);"></span>PRD 產品需求與 BNA Agent 商業化</div>
+                <div class="pill-group">
+                    <span class="pill highlight-amber">PRD (Product Requirements Document)</span>
+                    <span class="pill">Supply &amp; Demand</span>
+                    <span class="pill">Functions 功能</span>
+                    <span class="pill">Verifications 驗證</span>
+                    <span class="pill highlight-green">IP 智慧財產</span>
+                </div>
+                <p style="font-size: 0.88rem; color: #334155; margin-top: 12px;">
+                    將 <strong>BNA Agent</strong> 轉化為可商業化交易的 <strong>MVP (Minimum Viable Product)</strong>，以軟體 / App / 網頁形式提供 <strong>SaaS (Software as a Service)</strong> 服務，為目標客群 (TA) 創造願付價值 (Value / WTP)。
+                </p>
+
+                <!-- SVG Diagram: Market Loop & Tech Stack -->
+                <div class="svg-wrapper">
+                    <svg viewBox="0 0 420 230" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="8" y="8" width="404" height="214" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+                        <!-- Market Loop -->
+                        <circle cx="145" cy="115" r="56" fill="#ffffff" stroke="#0284c7" stroke-width="2" stroke-dasharray="4 3"/>
+                        <text x="145" y="119" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">Market</text>
+                        <text x="55" y="119" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">Producers</text>
+                        <text x="235" y="119" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">Consumers</text>
+                        <text x="145" y="45" text-anchor="middle" font-size="11" font-weight="600" fill="#16a34a">Product (MVP)</text>
+                        <text x="145" y="192" text-anchor="middle" font-size="12" font-weight="bold" fill="#d97706">$ Value (WTP)</text>
+
+                        <!-- Tech Stack -->
+                        <rect x="285" y="34" width="110" height="44" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+                        <text x="340" y="53" text-anchor="middle" font-size="11" font-weight="bold" fill="#92400e">Front-end 前端</text>
+                        <text x="340" y="69" text-anchor="middle" font-size="10" fill="#78350f">Webpage / SPA</text>
+
+                        <rect x="285" y="94" width="110" height="44" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+                        <text x="340" y="113" text-anchor="middle" font-size="11" font-weight="bold" fill="#075985">Back-end 後端</text>
+                        <text x="340" y="129" text-anchor="middle" font-size="10" fill="#0c4a6e">BNA Agent / SaaS</text>
+
+                        <rect x="285" y="154" width="110" height="44" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+                        <text x="340" y="173" text-anchor="middle" font-size="11" font-weight="bold" fill="#166534">Visual Assets</text>
+                        <text x="340" y="189" text-anchor="middle" font-size="10" fill="#14532d">.png/.jpeg + .svg</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: AI Agent Workflow -->
+        <section id="workflow" class="section-panel">
+            <div class="card">
+                <div class="card-title"><span class="dot" style="background: var(--accent-green);"></span>多模態筆記到知識庫與部署流程</div>
+                <ul class="step-list">
+                    <li class="step-item" style="border-left-color: #16a34a;">
+                        <strong>1. 多模態素材輸入 (Inputs)</strong>
+                        <span>課堂手寫筆記 (In-class hand-written note)、語音錄音 (voice recording)、影片 (video)、圖片 (image/pictures)。</span>
+                    </li>
+                    <li class="step-item" style="border-left-color: #0284c7;">
+                        <strong>2. AI 代理人協作 (AI Agents)</strong>
+                        <span>結合 <strong>Chatbot</strong>（討論諮詢）、<strong>Task Agent</strong>（分析與摘要）與 <strong>Coding Agent</strong>（程式與圖表生成），並融入人類的創造力與批判性思考 (Creativity &amp; Critical Thinking)。</span>
+                    </li>
+                    <li class="step-item" style="border-left-color: #d97706;">
+                        <strong>3. 結構化 Markdown 文件產出 (.md)</strong>
+                        <span>產出 <code>KB.md</code>（知識庫）、<code>handoff.md</code>（團隊交接文件）與 <code>PRD.md</code>（產品需求文件）。</span>
+                    </li>
+                    <li class="step-item" style="border-left-color: #e11d48;">
+                        <strong>4. 視覺化與單頁應用部署 (Deploy)</strong>
+                        <span>將摘要轉換為 <strong>SVG</strong> 向量圖表與 <strong>SPA (<code>index.html</code>)</strong>，最終部署 (Deploy) 為可公開存取的 <code>http://</code> 網址連結。</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Tab 4: UI/UX & SPA Guidelines -->
+        <section id="design" class="section-panel">
+            <div class="card">
+                <div class="card-title"><span class="dot" style="background: var(--accent-rose);"></span>白板指定的 SPA 介面設計規範</div>
+                <div class="compare-box">
+                    <div class="compare-col compare-good">
+                        <strong>✓ In Portrait (直向螢幕)</strong>
+                        <p style="margin-top:4px; color:#166534;">針對手機裝置 (Mobile phone devices) 優化單欄直向瀏覽體驗。</p>
+                    </div>
+                    <div class="compare-col compare-bad">
+                        <strong>✕ Landscape (橫向寬螢幕)</strong>
+                        <p style="margin-top:4px; color:#9f1239;">避免依賴筆電、桌機或電視螢幕 (Notebook / PC / TV display) 的寬版排版。</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px;">
+                    <strong style="font-size: 0.92rem;">視覺風格三原則 (Style)：</strong>
+                    <div class="pill-group">
+                        <span class="pill highlight-rose">Simple 簡潔</span>
+                        <span class="pill highlight-rose">Clear 清晰</span>
+                        <span class="pill highlight-rose">Light colored 淺色系</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; padding: 12px; background: #f1f5f9; border-radius: 10px; font-size: 0.85rem;">
+                    <strong>團隊協作模式：</strong> Team Member #1 與 Team Member #2 透過共用 Session 與 <code>handoff.md</code> 接力完成內容檢核與部署。
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            Generated from BNA-EMI W12 Whiteboard Notes · Single Page App (index.html)
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.section-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+    </script>
+</body>
+</html>
